@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, Union
@@ -25,8 +25,21 @@ class light(BaseModel):
 
 @app.get("/{id}")
 def light(id: int):
-    return dict(mongo_connection["light"].find_one({"light_id":id},{"_id":0}))
+    if id < 1 or id > 3:
+        raise HTTPException(404, detail="light id is invalid")
+    return dict(mongo_connection["light"].find_one({"light_id": id}, {"_id": 0}))
 
-@app.put("/")
+data=[
+    {"light_id":1,"status":True,"mode":"AUTO","brightness":100},
+    {"light_id":2,"status":False,"mode":"DISCO","brightness":0},
+    {"light_id":3,"status":True,"mode":"MANUAL","brightness":100},
+]
+
+@app.post("/AddMock")
 def light():
-    mongo_connection["light"].insert_one({"light_id":1})
+    mongo_connection["light"].insert_many(data)
+
+# delete all data
+@app.delete("/")
+def deleteLight():
+    mongo_connection["light"].delete_many({})
