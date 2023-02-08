@@ -21,20 +21,23 @@ class light(BaseModel):
     status: bool
     mode: str
     brightness: int
-
+# get all data
+@app.get("/")
+def get_all_light():
+    return list(mongo_connection["light"].find({}, {"_id": 0}))
 
 @app.get("/{id}")
 def get_light(id: int):
     if id < 1 or id > 3:
         raise HTTPException(404, detail="light id is invalid")
     return dict(mongo_connection["light"].find_one({"light_id": id}, {"_id": 0}))
-
+# mock data
 data=[
     {"light_id":1,"status":True,"mode":"AUTO","brightness":100},
     {"light_id":2,"status":False,"mode":"DISCO","brightness":0},
     {"light_id":3,"status":True,"mode":"MANUAL","brightness":100},
 ]
-
+# add mock data
 @app.post("/AddMock")
 def post_light():
     mongo_connection["light"].insert_many(data)
