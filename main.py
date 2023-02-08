@@ -25,11 +25,19 @@ class light(BaseModel):
 
 @app.get("/{id}")
 def get_light(id: int):
-    return dict(mongo_connection["light"].find_one({"light_id":id},{"_id":0}))
+    if id < 1 or id > 3:
+        raise HTTPException(404, detail="light id is invalid")
+    return dict(mongo_connection["light"].find_one({"light_id": id}, {"_id": 0}))
 
-@app.put("/")
-def put_light():
-    mongo_connection["light"].insert_one({"light_id":1})
+data=[
+    {"light_id":1,"status":True,"mode":"AUTO","brightness":100},
+    {"light_id":2,"status":False,"mode":"DISCO","brightness":0},
+    {"light_id":3,"status":True,"mode":"MANUAL","brightness":100},
+]
+
+@app.post("/AddMock")
+def post_light():
+    mongo_connection["light"].insert_many(data)
 
 @app.put("/update")
 def update_light(light_object: light):
@@ -45,3 +53,8 @@ def update_light(light_object: light):
         return {"success": True, "detail": "Brightness unchanged"}
     mongo_connection["light"].update_one({"light_id": light_object.light_id},{"$set": {"status": light_object.status, "mode": light_object.mode, "brightness": light_object.brightness}})
     return {"success": True}
+
+# delete all data
+@app.delete("/")
+def deleteLight():
+    mongo_connection["light"].delete_many({})
