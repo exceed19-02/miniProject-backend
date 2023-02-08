@@ -52,6 +52,7 @@ def post_light():
     mongo_connection["light"].insert_many(data)
 
 
+# update data by input light basemodel
 @app.put("/update")
 def update_light(light_object: light):
     enum_mode = ["AUTO", "MANUAL", "DISCO"]
